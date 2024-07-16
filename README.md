@@ -2,12 +2,36 @@
 Module of the [HeFQUIN query federation engine](https://github.com/LiUSemWeb/HeFQUIN) to connect to Property Graph data sources. In particular, this module provides the functionality to run SPARQL-star queries over user-configurable RDF-star views of Property Graphs by translating these queries into openCypher queries which, then, are sent directly to a Property Graph store (we only support Neo4j at the moment).
 
 This module also comes with two command-line programs:
-* **RunBGPOverNeo4j** provides the SPARQL-star query functionality for Property Graphs as a standalone tool, and
-* **MaterializeRDFViewOfLPG** can be used to convert the Property Graphs into an RDF-star graphs by materializing the RDF-star views that are otherwise considered only as virtual views by the query functionality.
+* [**RunBGPOverNeo4j**](#run-the-runbgpoverneo4j-program) provides the SPARQL-star query functionality for Property Graphs as a standalone tool, and
+* [**MaterializeRDFViewOfLPG**](#run-the-materializerdfviewoflpg-program) can be used to convert the Property Graphs into an RDF-star graphs by materializing the RDF-star views that are otherwise considered only as virtual views by the query functionality.
 
-While documenting the query-translation functionality implemented by this module is still work in progress, the (user-configurable) Property Graph to RDF-star mapping that defines the RDF-star views is described below, followed by a description of the two command-line programs.
+While documenting the query-translation functionality implemented by this module is still work in progress, the (user-configurable) Property Graph to RDF-star mapping that defines the RDF-star views is described in the [next section](#user-configurable-mapping-of-property-graphs-to-rdf-star-graphs), followed by a [description of the two command-line programs](#command-line-programs).
 
 ## User-Configurable Mapping of Property Graphs to RDF-star Graphs
+The SPARQL-star based query functionality provided by this module considers specific types of RDF-star views of an underlying Property Graph. These views are defined based on a user-configurable mapping from the Property Graph model to RDF-star.
+
+The idea of this mapping is simple: Given a Property Graph, every edge of this graph (including the label of the edge) is represented as an ordinary RDF triple in the resulting RDF-star data. The same holds for each node with its label, as well as for every node property. Edge properties are represented as nested triples that contain, as their subject, the triple representing the corresponding edge (more details and examples below).
+
+While the structure of the resulting RDF-star graphs cannot be influenced, the mapping is configurable in terms of the particular elements (blank nodes and IRIs) of the triples that it generates. Formally, this form of configuration is captured by a notion that we call *LPG-to-RDF-star configuration*. The concrete LPG-to-RDF-star configuration to be used when applying the mapping may, in principle, be specified in various forms. The form that the HeFQUIN-PGConnector expects is an RDF-based description using [a specific RDF vocabulary](https://github.com/LiUSemWeb/HeFQUIN-PGConnector/blob/main/vocabs/LPGtoRDFConfiguration.ttl) that we have developed for this purpose and that provides a lot of different options for the different components of LPG-to-RDF-star configurations.
+
+The following sections describe the mapping approach in more detail and, at the same time, introduce the components of LPG-to-RDF-star configurations, together with some of the possible options for each of these components. For a complete definition of all the options, refer to [the file that defines the vocabulary](https://github.com/LiUSemWeb/HeFQUIN-PGConnector/blob/main/vocabs/LPGtoRDFConfiguration.ttl), and a formal definition of the whole mapping approach can be found in the following research paper:
+
+* Olaf Hartig: [Foundations to Query Labeled Property Graphs using SPARQL*](http://olafhartig.de/files/Hartig_AMAR2019_Preprint.pdf). In _Proceedings of the 1st International Workshop on Approaches for Making Data Interoperable (AMAR)_, 2019.
+
+### Node Mapping
+
+The *first component* of every LPG-to-RDF-star configuration is a so-called *node mapping* which .. TODO
+
+### Label Predicate and Node Label Mapping
+
+TODO
+
+### Edge Label Mapping
+
+TODO
+
+### Property Name Mapping
+
 TODO
 
 ## Command-Line Programs
@@ -29,7 +53,7 @@ mvn package
 Assuming the Maven process completes successfully, you can use the command-line programs provided in this repository as described in the following sections.
 
 ### Run the RunBGPOverNeo4j Program
-RunBGPOverNeo4j provides the query functionality of HeFQUIN-PGConnector as a standalone tool. As a Java program, it needs to be run using the Java interpreter (after compiling it [as described above](#compile-the-programs)). The default way to do so is by running the following command,
+`RunBGPOverNeo4j` provides the query functionality of HeFQUIN-PGConnector as a standalone tool. Since `RunBGPOverNeo4j` is a Java program, it needs to be run using the Java interpreter (after compiling it [as described above](#compile-the-programs)). The default way to do so is by running the following command,
 ```
 java -cp target/HeFQUIN-PGConnector-0.0.1-SNAPSHOT.jar se.liu.ida.hefquin.cli.RunBGPOverNeo4j --query=query.rq --lpg2rdfconf=LPG2RDF.ttl --endpoint=http://localhost:7474/db/neo4j/tx/commit
 ```
@@ -41,7 +65,7 @@ java -cp target/HeFQUIN-PGConnector-0.0.1-SNAPSHOT.jar se.liu.ida.hefquin.cli.Ru
 ```
 
 ### Run the MaterializeRDFViewOfLPG Program
-MaterializeRDFViewOfLPG can be used to convert the Property Graphs into an RDF-star graphs by applying the user-configurable Property Graph to RDF-star mapping. As a Java program, it needs to be run using the Java interpreter (after compiling it [as described above](#compile-the-programs)). The default way to do so is by running the following command,
+`MaterializeRDFViewOfLPG` can be used to convert any Property Graph into an RDF-star graph by applying our [user-configurable Property Graph to RDF-star mapping](#user-configurable-mapping-of-property-graphs-to-rdf-star-graphs). As a Java program, it needs to be run using the Java interpreter (after compiling it [as described above](#compile-the-programs)). The default way to do so is by running the following command,
 ```
 java -cp target/HeFQUIN-PGConnector-0.0.1-SNAPSHOT.jar se.liu.ida.hefquin.cli.MaterializeRDFViewOfLPG --lpg2rdfconf=LPG2RDF.ttl --endpoint=http://localhost:7474/db/neo4j/tx/commit
 ```
