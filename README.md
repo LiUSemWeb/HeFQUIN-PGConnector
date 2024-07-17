@@ -34,15 +34,14 @@ As an alternative to blank nodes, the nodes of the Property Graph may be mapped 
 ```turtle
 _:c2  rdf:type  lr:LPGtoRDFConfiguration ;
       lr:nodeMapping [ rdf:type lr:IRIPrefixBasedNodeMapping ;
-                      lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] .
+                       lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] .
 ```
 
 ### Node Label Mapping and Label Predicate
 
 The mapping approach captures the label of every Property Graph node by an RDF triple whose subject is the blank node or the IRI that the node mapping (see above) associated with that node. The object of such a triple is determined by a so-called *node label mapping*, which is the *second component* of an LPG-to-RDF-star configuration, and the predicate is given as the *third component* of LPG-to-RDF-star configurations. In the RDF-based descriptions of LPG-to-RDF-star configurations, this predicate is specified via the `lr:labelPredicate` property; whereas, for specifying the node label mapping, there are different options (see all the sub-classes of `lr:NodeLabelMapping` in [our RDF vocabulary](https://github.com/LiUSemWeb/HeFQUIN-PGConnector/blob/main/vocabs/LPGtoRDFConfiguration.ttl)). One of these options, as illustrated in the following example, is to create IRIs by appending the node label to a common IRI prefix again (i.e., similar to the IRI prefix option for node mappings that we mentioned in the previous section).
 
-**Example:** Consider again the two Property Graph nodes of the previous example and assume that the node with ID 153 has the label "Person" whereas
-the node with ID 295 is labeled "Book". By using an LPG-to-RDF-star configuration with a node label mapping as specified in the following description, we obtain the two label-related RDF triples `(http://example.org/node/153, rdf:type, http://example.org/type/Person)` and `(http://example.org/node/295, rdf:type, http://example.org/type/Book)`.
+**Example:** Consider again the two Property Graph nodes of the previous example and assume that the node with ID 153 has the label "Person" whereas the node with ID 295 is labeled "Book". By using an LPG-to-RDF-star configuration with a node label mapping (and label predicate) as specified in the following description, we obtain the two label-related RDF triples `(http://example.org/node/153, rdf:type, http://example.org/type/Person)` and `(http://example.org/node/295, rdf:type, http://example.org/type/Book)`.
 ```turtle
 _:c2  rdf:type  lr:LPGtoRDFConfiguration ;
       lr:nodeMapping [
@@ -54,7 +53,46 @@ _:c2  rdf:type  lr:LPGtoRDFConfiguration ;
       lr:labelPredicate "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"^^xsd:anyURI .
 ```
 
-TODO ...
+While the IRIs for the node labels in the previous example are created in a generic manner, it is also possible to map (some of the) node labels to IRIs defined by existing RDF vocabularies.
+
+**Example:** Consider the following LPG-to-RDF-star configuration.
+```turtle
+_:c3  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [
+               rdf:type lr:IRIPrefixBasedNodeMapping ;
+               lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+      lr:nodeLabelMapping [
+               rdf:type lr:CompositeNodeLabelMapping ;
+               lr:componentMappings ( _:nlm1  _:nlm2  _:nlm3 ) ] ;
+      lr:labelPredicate "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"^^xsd:anyURI .
+
+_:nlm1  rdf:type  lr:SingletonIRINodeLabelMapping ;
+        lr:label  "Person" ;
+        lr:iri "http://xmlns.com/foaf/0.1/Person"^^xsd:anyURI .
+
+_:nlm2  rdf:type  lr:SingletonIRINodeLabelMapping ;
+        lr:label  "Book" ;
+        lr:iri "https://schema.org/Book"^^xsd:anyURI .
+
+_:nlm3  rdf:type  lr:IRIPrefixBasedNodeLabelMapping ;
+        lr:prefixOfIRIs "http://example.org/type/"^^xsd:anyURI .
+```
+By using this LPG-to-RDF-star configuration to map the two Property Graph nodes of the previous example, the two label-related RDF triples that we obtain are different: `(http://example.org/node/153, rdf:type, foaf:Person)` and `(http://example.org/node/295, rdf:type, schema:Book)`. Notice that the node label mapping of the LPG-to-RDF-star configuration is of type `lr:CompositeNodeLabelMapping`, which means that it is composed of multiple other node label mappings (which are listed via the `lr:componentMappings` property). In this particular case, it is composed of three other node label mappings, where the first one focuses only on the node label "Person" and maps this particular node label to the [Person class](http://xmlns.com/foaf/spec/#term_Person) of the [FOAF vocabulary](http://xmlns.com/foaf/spec/). Similarly, the second one maps (only) the node label "Book" to the [Book class](https://schema.org/Book) of the [Schema.org vocabulary](https://schema.org/) (and the third one covers all other node labels in the same generic way as in the previous example).
+
+It is also possible to extend an `lr:IRIPrefixBasedNodeLabelMapping` with a regular expression (see `lr:RegexBasedNodeLabelMapping`) such that only the node labels that match this regular expression are mapped according to the node label mapping. This way, different groups of node labels may be mapped to IRIs with different prefixes.
+
+As a last example, we illustrate that node labels may also be mapped to string literals (instead of IRIs), which can be achieved by using a node label mapping of type `lr:LiteralBasedNodeLabelMapping` (or `lr:SingletonLiteralNodeLabelMapping`, but that is not covered in our example).
+
+**Example:** By using the following LPG-to-RDF-star configuration, we obtain the two label-related RDF triples `(http://example.org/node/153, rdfs:label, "Person")` and `(http://example.org/node/295, rdfs:label, "Book")` for our running example (notice that we also use a different label predicate here).
+```turtle
+_:c4  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [
+               rdf:type lr:IRIPrefixBasedNodeMapping ;
+               lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+      lr:nodeLabelMapping [
+               rdf:type lr:LiteralBasedNodeLabelMapping `] ;
+      lr:labelPredicate "http://www.w3.org/2000/01/rdf-schema#label"^^xsd:anyURI .
+```
 
 ### Edge Label Mapping
 
