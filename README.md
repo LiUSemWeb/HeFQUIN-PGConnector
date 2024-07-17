@@ -20,7 +20,22 @@ The following sections describe the mapping approach in more detail and, at the 
 
 ### Node Mapping
 
-The *first component* of every LPG-to-RDF-star configuration is a so-called *node mapping* which .. TODO
+The *first component* of every LPG-to-RDF-star configuration is a so-called *node mapping* which specifies whether the nodes of the Property Graph are mapped to blank nodes or to IRIs and, in the case of IRIs, what these IRIs look like.
+
+If you want to use blank nodes to capture the nodes of your Property Graph in the resulting RDF-star view, then you have to use a node mapping of type `lr:BNodeBasedNodeMapping` in the RDF-based description of your LPG-to-RDF-star configuration. Hence, the relevant part of this description may look as follows (presented in RDF Turtle format, prefix declarations omitted).
+```turtle
+_:c  rdf:type  lr:LPGtoRDFConfiguration ;
+     lr:nodeMapping [ rdf:type lr:BNodeBasedNodeMapping ] .
+```
+
+As an alternative to blank nodes, the nodes of the Property Graph may be mapped to IRIs. The specific type of node mapping that HeFQUIN-PGConnector supports for this case is `lr:IRIPrefixBasedNodeMapping` which, for each node of the Property Graph, creates an IRI by attaching the ID of the node to a common IRI prefix. The IRI prefix to be used can be specified via the `lr:prefixOfIRIs` property.
+
+**Example:** Assume a Property Graph with two nodes which have the IDs 153 and 295, respectively. When using an LPG-to-RDF-star configuration with a node mapping as specified in the following description, then these two Property Graph nodes are mapped to the IRIs `http://example.org/node/153` and `http://example.org/node/295`, respectively.
+```turtle
+_:c  rdf:type  lr:LPGtoRDFConfiguration ;
+     lr:nodeMapping [ rdf:type lr:IRIPrefixBasedNodeMapping ;
+                      lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] .
+```
 
 ### Label Predicate and Node Label Mapping
 
