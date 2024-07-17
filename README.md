@@ -24,22 +24,37 @@ The *first component* of every LPG-to-RDF-star configuration is a so-called *nod
 
 If you want to use blank nodes to capture the nodes of your Property Graph in the resulting RDF-star view, then you have to use a node mapping of type `lr:BNodeBasedNodeMapping` in the RDF-based description of your LPG-to-RDF-star configuration. Hence, the relevant part of this description may look as follows (presented in RDF Turtle format, prefix declarations omitted).
 ```turtle
-_:c  rdf:type  lr:LPGtoRDFConfiguration ;
-     lr:nodeMapping [ rdf:type lr:BNodeBasedNodeMapping ] .
+_:c1  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [ rdf:type lr:BNodeBasedNodeMapping ] .
 ```
 
-As an alternative to blank nodes, the nodes of the Property Graph may be mapped to IRIs. The specific type of node mapping that HeFQUIN-PGConnector supports for this case is `lr:IRIPrefixBasedNodeMapping` which, for each node of the Property Graph, creates an IRI by attaching the ID of the node to a common IRI prefix. The IRI prefix to be used can be specified via the `lr:prefixOfIRIs` property.
+As an alternative to blank nodes, the nodes of the Property Graph may be mapped to IRIs. The specific type of node mapping that HeFQUIN-PGConnector supports for this case is `lr:IRIPrefixBasedNodeMapping` which, for each node of the Property Graph, creates an IRI by appending the ID of the node to a common IRI prefix. The IRI prefix to be used can be specified via the `lr:prefixOfIRIs` property.
 
-**Example:** Assume a Property Graph with two nodes which have the IDs 153 and 295, respectively. When using an LPG-to-RDF-star configuration with a node mapping as specified in the following description, then these two Property Graph nodes are mapped to the IRIs `http://example.org/node/153` and `http://example.org/node/295`, respectively.
+**Example:** Assume a Property Graph with two nodes which have the IDs 153 and 295, respectively. By using an LPG-to-RDF-star configuration with a node mapping as specified in the following description, these two Property Graph nodes are mapped to the IRIs `http://example.org/node/153` and `http://example.org/node/295`, respectively.
 ```turtle
-_:c  rdf:type  lr:LPGtoRDFConfiguration ;
-     lr:nodeMapping [ rdf:type lr:IRIPrefixBasedNodeMapping ;
+_:c2  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [ rdf:type lr:IRIPrefixBasedNodeMapping ;
                       lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] .
 ```
 
-### Label Predicate and Node Label Mapping
+### Node Label Mapping and Label Predicate
 
-TODO
+The mapping approach captures the label of every Property Graph node by an RDF triple whose subject is the blank node or the IRI that the node mapping (see above) associated with that node. The object of such a triple is determined by a so-called *node label mapping*, which is the *second component* of an LPG-to-RDF-star configuration, and the predicate is given as the *third component* of LPG-to-RDF-star configurations. In the RDF-based descriptions of LPG-to-RDF-star configurations, this predicate is specified via the `lr:labelPredicate` property; whereas, for specifying the node label mapping, there are different options (see all the sub-classes of `lr:NodeLabelMapping` in [our RDF vocabulary](https://github.com/LiUSemWeb/HeFQUIN-PGConnector/blob/main/vocabs/LPGtoRDFConfiguration.ttl)). One of these options, as illustrated in the following example, is to create IRIs by appending the node label to a common IRI prefix again (i.e., similar to the IRI prefix option for node mappings that we mentioned in the previous section).
+
+**Example:** Consider again the two Property Graph nodes of the previous example and assume that the node with ID 153 has the label "Person" whereas
+the node with ID 295 is labeled "Book". By using an LPG-to-RDF-star configuration with a node label mapping as specified in the following description, we obtain the two label-related RDF triples `(http://example.org/node/153, rdf:type, http://example.org/type/Person)` and `(http://example.org/node/295, rdf:type, http://example.org/type/Book)`.
+```turtle
+_:c2  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [
+               rdf:type lr:IRIPrefixBasedNodeMapping ;
+               lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+      lr:nodeLabelMapping [
+               rdf:type lr:IRIPrefixBasedNodeLabelMapping ;
+               lr:prefixOfIRIs "http://example.org/type/"^^xsd:anyURI ] ;
+      lr:labelPredicate "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"^^xsd:anyURI .
+```
+
+TODO ...
 
 ### Edge Label Mapping
 
