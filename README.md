@@ -104,6 +104,8 @@ _:c3  rdf:type  lr:LPGtoRDFConfiguration ;
       lr:nodeMapping [
                rdf:type lr:IRIPrefixBasedNodeMapping ;
                lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+     #lr:nodeLabelMapping ...
+     #lr:labelPredicate ...
       lr:edgeLabelMapping [
                rdf:type lr:CompositeEdgeLabelMapping ;
                lr:componentMappings ( _:elm1  _:elm2  ) ] .
@@ -128,6 +130,8 @@ _:c3  rdf:type  lr:LPGtoRDFConfiguration ;
       lr:nodeMapping [
                rdf:type lr:IRIPrefixBasedNodeMapping ;
                lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+     #lr:nodeLabelMapping ...
+     #lr:labelPredicate ...
       lr:edgeLabelMapping [
                rdf:type lr:CompositeEdgeLabelMapping ;
                lr:componentMappings ( _:elm1  _:elm2  ) ] ;
