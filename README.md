@@ -96,11 +96,59 @@ _:c4  rdf:type  lr:LPGtoRDFConfiguration ;
 
 ### Edge Label Mapping
 
-TODO
+Every edge of the given Property Graph is mapped to an RDF triple whose subject (resp. object) is the blank node or the IRI that the [node mapping](#node-mapping) assigns to the source node (resp. target node) of the edge, and the predicate is determined based on the label of the edge. As for the latter, the *fourth component* of LPG-to-RDF-star configurations is a so-called *edge label mapping* which maps any edge label to an IRI. The types of edge label mappings supported by HeFQUIN-PGConnector are similar to the types of node label mappings and are captured as sub-classes of `lr:EdgeLabelMapping` in [our RDF vocabulary](https://github.com/LiUSemWeb/HeFQUIN-PGConnector/blob/main/vocabs/LPGtoRDFConfiguration.ttl).
+
+**Example:** Assume the Property Graph considered in the previous examples contains an edge from the book node (i.e., the node with ID 295) to the person node (with ID 153) and this edge has the label "fundedBy" to indicate that the book was funded by the person. Given the following LPG-to-RDF-star configuration, this edge is mapped to the triple `(http://example.org/node/295, schema:funder, http://example.org/node/153)`.
+```turtle
+_:c3  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [
+               rdf:type lr:IRIPrefixBasedNodeMapping ;
+               lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+      lr:edgeLabelMapping [
+               rdf:type lr:CompositeEdgeLabelMapping ;
+               lr:componentMappings ( _:elm1  _:elm2  ) ] .
+
+_:elm1  rdf:type  lr:SingletonIRIEdgeLabelMapping ;
+        lr:label  "fundedBy" ;
+        lr:iri "https://schema.org/funder"^^xsd:anyURI .
+
+_:elm2  rdf:type  lr:IRIPrefixBasedEdgeLabelMapping ;
+        lr:prefixOfIRIs "http://example.org/relationship/"^^xsd:anyURI .
+```
+
+We emphasize that the mapping approach is *not* information preserving for Property Graphs that contain multiple edges between the same nodes with the same label. That is, by the mapping approach, all edges with the same source node, the same target node, and the same label, collapse into a single triple in the RDF-star view.
 
 ### Property Name Mapping
 
-TODO
+The *fifth component* of LPG-to-RDF-star configurations is a so-called *property name mapping* which is used to determine the predicate of every triple that captures a property of a node or an edge of the mapped Property Graph.
+
+**Example:** Assume that the person node in our example Property Graph has a property named "name" with the value "Bob", and the "fundedBy" edge has a property named "amount" with the value 3000. By using the following LPG-to-RDF-star configuration, for which we now specify a property name mapping, the property of the person node is mapped to the triple `(http://example.org/node/153, foaf:name, "Bob")` and the property of the "fundedBy" edge is mapped to the (nested!) triple `( (http://example.org/node/295, schema:funder, http://example.org/node/153), http://example.org/p/amount, 3000 )`.
+```turtle
+_:c3  rdf:type  lr:LPGtoRDFConfiguration ;
+      lr:nodeMapping [
+               rdf:type lr:IRIPrefixBasedNodeMapping ;
+               lr:prefixOfIRIs "http://example.org/node/"^^xsd:anyURI ] ;
+      lr:edgeLabelMapping [
+               rdf:type lr:CompositeEdgeLabelMapping ;
+               lr:componentMappings ( _:elm1  _:elm2  ) ] ;
+      lr:propertyNameMapping [
+               rdf:type lr:CompositePropertyNameMapping ;
+               lr:componentMappings ( _:pm1  _:pm2  ) ] .
+
+_:elm1  rdf:type  lr:SingletonIRIEdgeLabelMapping ;
+        lr:label  "fundedBy" ;
+        lr:iri "https://schema.org/funder"^^xsd:anyURI .
+
+_:elm2  rdf:type  lr:IRIPrefixBasedEdgeLabelMapping ;
+        lr:prefixOfIRIs "http://example.org/relationship/"^^xsd:anyURI .
+
+_:pm1  rdf:type  lr:SingletonIRIPropertyNameMapping ;
+       lr:label  "name" ;
+       lr:iri "http://xmlns.com/foaf/0.1/name"^^xsd:anyURI .
+
+_:pm2  rdf:type  lr:IRIPrefixBasedPropertyNameMapping ;
+       lr:prefixOfIRIs "http://example.org/p/"^^xsd:anyURI .
+```
 
 ## Command-Line Programs
 ### Compile the Programs
