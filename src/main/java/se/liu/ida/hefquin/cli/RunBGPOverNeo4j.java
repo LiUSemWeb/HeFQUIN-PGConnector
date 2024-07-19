@@ -48,7 +48,9 @@ public class RunBGPOverNeo4j extends CmdARQ
 	protected final ArgDecl argNaive   = new ArgDecl(ArgDecl.NoValue, "naive");
 	protected final ArgDecl argNoVarRepl   = new ArgDecl(ArgDecl.NoValue, "disableVariableReplacement");
 	protected final ArgDecl argNoMerge   = new ArgDecl(ArgDecl.NoValue, "disablePathMerging");
+	protected final ArgDecl argPrintCypher = new ArgDecl(ArgDecl.NoValue, "printCypherQuery");
 	protected final ArgDecl argSuppressResultPrintout = new ArgDecl(ArgDecl.NoValue, "suppressResultPrintout");
+	protected final ArgDecl argSkipExecution = new ArgDecl(ArgDecl.NoValue, "skipExecution");
 
 	public static void main( final String[] args ) {
 		new RunBGPOverNeo4j(args).mainRun();
@@ -60,7 +62,9 @@ public class RunBGPOverNeo4j extends CmdARQ
 		addModule(modTime);
 		addModule(modResults);
 
+		add(argPrintCypher, "--printCypherQuery", "Print out the Cypher query(ies) produced by the query translation process");
 		add(argSuppressResultPrintout, "--suppressResultPrintout", "Do not print out the query result");
+		add(argSkipExecution, "--skipExecution", "Do not execute the query (but create the execution plan)");
 
 		addModule(modQuery);
 		addModule(modLPG2RDFConfiguration);
@@ -84,6 +88,14 @@ public class RunBGPOverNeo4j extends CmdARQ
 		final LPG2RDFConfiguration conf = modLPG2RDFConfiguration.getLPG2RDFConfiguration();
 
 		final SPARQL2CypherTranslationResult tRes = performQueryTranslation(bgp, conf);
+
+		if ( contains(argPrintCypher) ) {
+			System.out.println( tRes.getCypherQuery().toString() );
+		}
+
+		if ( contains(argSkipExecution) ) {
+			return;
+		}
 
 		final List<TableRecord> response = performQueryExecution( tRes.getCypherQuery() );
 
